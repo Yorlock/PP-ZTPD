@@ -1,0 +1,52 @@
+-- A
+create table FIGURY(
+    ID number,
+    KSZTALT MDSYS.SDO_GEOMETRY
+);
+
+-- B
+insert into FIGURY values (
+    1,
+    MDSYS.SDO_GEOMETRY(
+        2003, null, null,
+        MDSYS.SDO_ELEM_INFO_ARRAY(1,1003,4),
+        MDSYS.SDO_ORDINATE_ARRAY(5,7,  7,5,  3,5)
+    ));
+
+insert into FIGURY values (
+    2,
+    MDSYS.SDO_GEOMETRY(
+        2003, null, null,
+        MDSYS.SDO_ELEM_INFO_ARRAY(1,1003,3),
+        MDSYS.SDO_ORDINATE_ARRAY(1,1,  5,5)
+    ));
+
+insert into FIGURY values (
+    3,
+    MDSYS.SDO_GEOMETRY(
+        2002, null, null,
+        MDSYS.SDO_ELEM_INFO_ARRAY(1,4,2,  1,2,1,  5,2,2),
+        MDSYS.SDO_ORDINATE_ARRAY(3,2,  6,2,  7,3,  8,2,  7,1)
+    ));
+
+-- C
+insert into figury values (
+    4,
+    MDSYS.SDO_GEOMETRY(
+        2003, null, null,
+        MDSYS.SDO_ELEM_INFO_ARRAY(1, 1003, 4),
+        MDSYS.SDO_ORDINATE_ARRAY(1,4,  3,4,  5,4)
+    ));
+
+-- D
+select id, SDO_GEOM.VALIDATE_GEOMETRY_WITH_CONTEXT(ksztalt, 0.01) as VAL
+from FIGURY;
+
+-- 13346
+
+-- E
+delete from FIGURY
+where SDO_GEOM.VALIDATE_GEOMETRY_WITH_CONTEXT(ksztalt, 0.01) <> 'TRUE';
+
+-- F
+commit;

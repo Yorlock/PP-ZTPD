@@ -1,0 +1,66 @@
+-- 1 A
+
+create table A6_LRS (GEOM SDO_GEOMETRY);
+
+-- 1 B
+
+insert into A6_LRS
+select sr.geom
+from STREETS_AND_RAILROADS sr, MAJOR_CITIES mj
+where sdo_relate(sr.geom, sdo_geom.sdo_buffer(mj.geom, 10, 1, 'unit=km'), 'MASK=ANYINTERACT') = 'TRUE'
+and mj.city_name = 'Koszalin';
+-- id = 56
+
+-- 1 C
+
+select  sdo_geom.sdo_length(geom, 1, 'unit=km') DISTANCE, st_linestring(geom).st_numpoints() ST_NUMPOINTS
+from STREETS_AND_RAILROADS where id = 56;
+
+-- 1 D
+
+update A6_LRS set geom = sdo_lrs.convert_to_lrs_geom(geom, 0, 276.681);
+
+-- 1 E
+
+insert into USER_SDO_GEOM_METADATA
+values ('A6_LRS', 'Geom',
+mdsys.sdo_dim_array(
+    MDSYS.SDO_DIM_ELEMENT('X', 12.603676, 26.369824, 1),
+    MDSYS.SDO_DIM_ELEMENT('Y', 45.8464, 58.0213, 1),
+    MDSYS.SDO_DIM_ELEMENT('M', 0, 300, 1)), 8307);
+
+-- 1 F
+
+create index A6_LRS_idx on A6_LRS(Geom) indextype is mdsys.spatial_index;
+
+-- 2 A
+
+select SDO_LRS.VALID_MEASURE(GEOM, 500) VALID_500
+from A6_LRS;
+
+-- 2 B
+
+select SDO_LRS.GEOM_SEGMENT_END_PT(GEOM) END_PT
+from A6_LRS;
+
+-- 2 C
+
+select sdo_lrs.locate_pt(geom, 150, 0) KM150
+from A6_LRS;
+
+-- 2 D
+
+select sdo_lrs.clip_geom_segment(geom, 120, 160) CLIPPED 
+from A6_LRS;
+
+-- 2 E
+
+select sdo_lrs.get_next_shape_pt(A6.geom, mc.geom) as "WJAZD NA A6"
+from A6_LRS A6, major_cities mc 
+where mc.city_name = 'Slupsk';
+
+-- 2 F
+
+select sdo_geom.sdo_length(sdo_lrs.offset_geom_segment(A6.geom, usgm.diminfo, 50, 200, 50, 'unit=m arc_tolerance=2'), 1, 'unit=km') KOSZT
+from A6_LRS A6, user_sdo_geom_metadata usgm
+where usgm.table_name = 'A6_LRS' and usgm.column_name = 'GEOM';
